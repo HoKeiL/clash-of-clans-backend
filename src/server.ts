@@ -22,6 +22,17 @@ app.get("/", async (_req, res) => {
     });
 });
 
+app.get("/teams", async (_req, res) => {
+    try {
+        const text = "SELECT * FROM teams";
+
+        const result = await client.query(text);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
 app.get("/health-check", async (_req, res) => {
     try {
         //For this to be successful, must connect to db
