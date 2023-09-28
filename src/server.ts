@@ -4,6 +4,7 @@ import express from "express";
 import { Client } from "pg";
 import { getEnvVarOrFail } from "./support/envVarUtils";
 import { setupDBClientConfig } from "./support/setupDBClientConfig";
+import { DbItem } from "./interfaces";
 
 dotenv.config(); //Read .env file lines as though they were env vars.
 
@@ -27,6 +28,51 @@ app.get("/teams", async (_req, res) => {
         const text = "SELECT * FROM teams";
 
         const result = await client.query(text);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
+app.post<{}, {}, DbItem>("/teams", async (req, res) => {
+    try {
+        const data = req.body;
+        const text =
+            "INSERT INTO teams(teamname, teamcaptain, teamplayer1,teamplayer2,teamplayer3,teamplayer4,teamplayer5,teamplayer6) VALUES($1, $2, $3,$4, $5, $6,$7,$8) RETURNING *";
+        const value = [
+            data.teamname,
+            data.teamcaptain,
+            data.teamplayer1,
+            data.teamplayer2,
+            data.teamplayer3,
+            data.teamplayer4,
+            data.teamplayer5,
+            data.teamplayer6,
+        ];
+        const result = await client.query(text, value);
+        res.status(201).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
+app.delete("/teams", async (_req, res) => {
+    try {
+        const text = "DELETE FROM teams";
+
+        const result = await client.query(text);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
+app.get("/teams/:id", async (_req, res) => {
+    try {
+        const id = _req.params.id;
+        const text = "SELECT * FROM teams WHERE id = $1";
+        const value = [id];
+        const result = await client.query(text, value);
         res.status(200).json(result.rows);
     } catch (error) {
         console.error(`there is an error: ${error}`);
