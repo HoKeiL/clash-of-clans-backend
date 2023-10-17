@@ -99,7 +99,7 @@ app.post<{}, {}, orderOfPlayDbItem>("/orderOfPlay", async (req, res) => {
             data.game6Player1,
             data.game6Player2,
             data.game7Player1,
-            data.game7Player2
+            data.game7Player2,
         ];
         const result = await client.query(text, value);
         res.status(201).json(result.rows);
