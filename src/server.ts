@@ -4,7 +4,7 @@ import express from "express";
 import { Client } from "pg";
 import { getEnvVarOrFail } from "./support/envVarUtils";
 import { setupDBClientConfig } from "./support/setupDBClientConfig";
-import { DbItem } from "./interfaces";
+import { teamsDbItem, orderOfPlayDbItem } from "./interfaces";
 
 dotenv.config(); //Read .env file lines as though they were env vars.
 
@@ -34,7 +34,7 @@ app.get("/teams", async (_req, res) => {
     }
 });
 
-app.post<{}, {}, DbItem>("/teams", async (req, res) => {
+app.post<{}, {}, teamsDbItem>("/teams", async (req, res) => {
     try {
         const data = req.body;
         const text =
@@ -73,6 +73,46 @@ app.get("/teams/:id", async (_req, res) => {
         const text = "SELECT * FROM teams WHERE id = $1";
         const value = [id];
         const result = await client.query(text, value);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
+app.post<{}, {}, orderOfPlayDbItem>("/orderOfPlay", async (req, res) => {
+    try {
+        const data = req.body;
+        const text =
+            "INSERT INTO orderOfPlay(teamname, Game1Player1, Game1Player2, Game2Player1, Game2Player2, Game3Player1, Game3Player2, Game4Player1, Game4Player2, Game5Player1, Game5Player2,Game6Player1,Game6Player2, Game7Player1,Game7Player2) VALUES($1, $2, $3,$4, $5, $6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *";
+        const value = [
+            data.teamname,
+            data.game1Player1,
+            data.game1Player2,
+            data.game2Player1,
+            data.game2Player2,
+            data.game3Player1,
+            data.game3Player2,
+            data.game4Player1,
+            data.game4Player2,
+            data.game5Player1,
+            data.game5Player2,
+            data.game6Player1,
+            data.game6Player2,
+            data.game7Player1,
+            data.game7Player2
+        ];
+        const result = await client.query(text, value);
+        res.status(201).json(result.rows);
+    } catch (error) {
+        console.error(`there is an error: ${error}`);
+    }
+});
+
+app.get("/orderOfPlay", async (_req, res) => {
+    try {
+        const text = "SELECT * FROM orderOfPlay";
+
+        const result = await client.query(text);
         res.status(200).json(result.rows);
     } catch (error) {
         console.error(`there is an error: ${error}`);
